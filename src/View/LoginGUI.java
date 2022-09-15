@@ -1,26 +1,40 @@
+package View;
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
+import org.hibernate.Hibernate;
+import java.lang.Object;
 
+
+import java.awt.EventQueue;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import Helper.Helper;
+import Model.Manager;
+
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import java.awt.Font;
 import java.awt.Color;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.UIManager;
+import java.awt.event.ActionListener;
+//import java.beans.Statement;
+import java.sql.*;
+import java.awt.event.ActionEvent;
+import javax.swing.JPasswordField;
+import Helper.*;
 
 public class LoginGUI extends JFrame {
 
 	private JPanel w_pane;
 	private JTextField fld_patientTc;
 	private JTextField fld_patientPass;
-	private JTextField textField;
-	private JTextField textField_1;
-
+	private JTextField fld_doctorId;
+	private JPasswordField fld_doctorPass;
+	private DBConnection conn =new DBConnection();
 	/**
 	 * Launch the application.
 	 */
@@ -112,32 +126,64 @@ public class LoginGUI extends JFrame {
 		
 		JLabel lblTcId_1 = new JLabel(" TC ID:");
 		lblTcId_1.setFont(new Font("Menlo", Font.BOLD, 18));
-		lblTcId_1.setBounds(28, 17, 409, 33);
+		lblTcId_1.setBounds(18, 17, 398, 33);
 		p_doctorHome.add(lblTcId_1);
 		
-		textField = new JTextField();
-		textField.setFont(new Font("Menlo", Font.PLAIN, 13));
-		textField.setColumns(10);
-		textField.setBounds(165, 21, 251, 26);
-		p_doctorHome.add(textField);
+		fld_doctorId = new JTextField();
+		fld_doctorId.setFont(new Font("Menlo", Font.PLAIN, 13));
+		fld_doctorId.setColumns(10);
+		fld_doctorId.setBounds(165, 21, 251, 26);
+		p_doctorHome.add(fld_doctorId);
 		
 		JLabel lblPassword_1 = new JLabel(" Password: ");
 		lblPassword_1.setFont(new Font("Menlo", Font.BOLD, 18));
-		lblPassword_1.setBounds(28, 62, 409, 33);
+		lblPassword_1.setBounds(18, 62, 409, 33);
 		p_doctorHome.add(lblPassword_1);
 		
-		textField_1 = new JTextField();
-		textField_1.setFont(new Font("Menlo", Font.PLAIN, 13));
-		textField_1.setColumns(10);
-		textField_1.setBounds(165, 62, 251, 26);
-		p_doctorHome.add(textField_1);
-		
 		JButton btnNewButton_1 = new JButton("Login");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(fld_doctorPass.getText().length() == 0 || fld_doctorPass.getText().length()==0) {
+					Helper.showMsg("fill");
+				}else {
+					try {
+					Connection con = conn.connDb();
+					Statement st = con.createStatement();
+					ResultSet rs = st.executeQuery("SELECT * FROM user");
+					while(rs.next()) {//userlar tek tek gezilir
+						if(fld_doctorId.getText().equals(rs.getString("tc_num")) 
+								&& fld_doctorPass.getText().equals(rs.getString("password"))) {
+							
+							Manager manager = new Manager();
+							manager.setId(rs.getInt("id"));
+							manager.setPassword("password");
+							manager.setTcnum(rs.getString("tc_num"));
+							manager.setName(rs.getString("name"));
+							manager.setType(rs.getString("type"));
+							System.out.println(manager.getName());
+							
+						}
+					}
+						
+				}catch (SQLException e1) {
+					e1.printStackTrace();
+					}
+				
+				}
+			}
+		});
+		
 		btnNewButton_1.setFont(new Font("Menlo", Font.PLAIN, 13));
 		btnNewButton_1.setBackground(Color.GRAY);
 		btnNewButton_1.setBounds(28, 107, 388, 47);
 		p_doctorHome.add(btnNewButton_1);
 		
-		ConnectionDB.connect();
+		fld_doctorPass = new JPasswordField();
+		fld_doctorPass.setBounds(165, 62, 258, 26);
+		p_doctorHome.add(fld_doctorPass);
+		
+		
+		
 	}
 }
+
